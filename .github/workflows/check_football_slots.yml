@@ -21,17 +21,16 @@ jobs:
         python -m pip install --upgrade pip
         pip install -r requirements.txt
 
-    - name: Install Firefox
-      run: |
-        sudo apt-get update
-        sudo apt-get install -y firefox
+    - name: Setup Firefox
+      uses: browser-actions/setup-firefox@latest
 
-    - name: Install latest geckodriver
+    - name: Setup GeckoDriver
+      uses: browser-actions/setup-geckodriver@latest
+
+    - name: Display Firefox and GeckoDriver versions
       run: |
-        LATEST_GECKODRIVER_VERSION=$(curl -sS https://api.github.com/repos/mozilla/geckodriver/releases/latest | grep -Po '"tag_name": "\K.*?(?=")')
-        wget https://github.com/mozilla/geckodriver/releases/download/${LATEST_GECKODRIVER_VERSION}/geckodriver-${LATEST_GECKODRIVER_VERSION}-linux64.tar.gz
-        tar -xzf geckodriver-${LATEST_GECKODRIVER_VERSION}-linux64.tar.gz
-        sudo mv geckodriver /usr/local/bin/
+        firefox --version
+        geckodriver --version
 
     - name: Run availability checker
       env:
