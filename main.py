@@ -31,7 +31,10 @@ def setup_driver():
         options.add_argument("--no-sandbox")
         options.add_argument("--disable-dev-shm-usage")
 
-        service = Service(executable_path=os.getenv('GECKODRIVER_PATH', 'geckodriver'))
+        geckodriver_path = os.getenv('GECKODRIVER_PATH', 'geckodriver')
+        logger.info(f"Using GeckoDriver at path: {geckodriver_path}")
+
+        service = Service(executable_path=geckodriver_path)
 
         driver = webdriver.Firefox(options=options, service=service)
         driver.set_window_size(1920, 1080)
@@ -40,7 +43,6 @@ def setup_driver():
     except Exception as e:
         logger.error(f"Error setting up the driver: {str(e)}")
         sys.exit(1)
-
 
 def click_element(driver, element):
     try:
