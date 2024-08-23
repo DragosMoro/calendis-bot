@@ -59,57 +59,66 @@ def click_element(driver, element):
             logger.error(f"Error clicking element with ActionChains: {str(e)}")
             raise
 
-def login(driver, website_url):
-    logger.info("Initiating login process")
-    driver.get(website_url)
-    try:
-        login_btn = WebDriverWait(driver, 10).until(
-            EC.element_to_be_clickable((By.ID, "login-btn"))
-        )
-        login_btn.click()
-        logger.info("Clicked login button")
+def login(driver, website_url, max_attempts=3):
+    for attempt in range(max_attempts):
+        logger.info(f"Initiating login process (Attempt {attempt + 1})")
+        driver.get(website_url)
+        try:
+            login_btn = WebDriverWait(driver, 10).until(
+                EC.element_to_be_clickable((By.ID, "login-btn"))
+            )
+            login_btn.click()
+            logger.info("Clicked login button")
 
-        email_field = WebDriverWait(driver, 10).until(
-            EC.presence_of_element_located((By.ID, "forEmail"))
-        )
-        email_field.send_keys(os.getenv('EMAIL'))
-        logger.info("Entered email" + os.getenv('EMAIL'))
+            email_field = WebDriverWait(driver, 10).until(
+                EC.presence_of_element_located((By.ID, "forEmail"))
+            )
+            email_field.send_keys(os.getenv('EMAIL'))
+            logger.info(f"Entered email: {os.getenv('EMAIL')}")
 
-        password_field = driver.find_element(By.ID, "forPassword")
-        password_field.send_keys(os.getenv('ACC_PASSWORD'))
-        logger.info("Entered password" + os.getenv('ACC_PASSWORD'))
+            password_field = driver.find_element(By.ID, "forPassword")
+            password_field.send_keys(os.getenv('ACC_PASSWORD'))
+            logger.info("Entered password")
 
-        connect_btn = driver.find_element(By.CSS_SELECTOR, "button.connect.validation_button")
-        connect_btn.click()
-        logger.info("Clicked connect button")
+            connect_btn = driver.find_element(By.CSS_SELECTOR, "button.connect.validation_button")
+            connect_btn.click()
+            logger.info("Clicked connect button")
 
-        time.sleep(5)
+            # Wait for login to complete
+            WebDriverWait(driver, 10).until(
+                EC.invisibility_of_element_located((By.CSS_SELECTOR, ".account-modals-container"))
+            )
+            logger.info("Login successful")
+            return True
 
-    except TimeoutException:
-        logger.error("Timeout while trying to log in. Check your internet connection or the website's responsiveness.")
-        driver.quit()
-        sys.exit(1)
-    except NoSuchElementException as e:
-        logger.error(f"Could not find element during login process. Details: {str(e)}")
-        driver.quit()
-        sys.exit(1)
-    except Exception as e:
-        logger.error(f"Unexpected error during login: {str(e)}")
-        driver.quit()
-        sys.exit(1)
+        except TimeoutException:
+            logger.warning(f"Timeout during login attempt {attempt + 1}")
+        except NoSuchElementException as e:
+            logger.warning(f"Element not found during login attempt {attempt + 1}: {str(e)}")
+        except Exception as e:
+            logger.warning(f"Unexpected error during login attempt {attempt + 1}: {str(e)}")
+
+        if attempt < max_attempts - 1:
+            logger.info("Retrying login...")
+            time.sleep(5)  # Wait before retrying
+        else:
+            logger.error("All login attempts failed")
+            driver.quit()
+            sys.exit(1)
+
 
 
 def navigate_to_page(driver):
+    global fotbal_service
     logger.info("Navigating to the sports facility page")
     try:
         driver.get("https://www.calendis.ro/cluj-napoca/baza-sportiva-gheorgheni/b")
-        login(driver, "https://www.calendis.ro/cluj-napoca/baza-sportiva-gheorgheni/b")
-    except Exception as e:
-        logger.error(f"Error navigating to the page: {str(e)}")
-        driver.quit()
-        sys.exit(1)
 
-    try:
+        # Check if we're still on the login page
+        if "login-btn" in driver.page_source:
+            logger.warning("Still on login page, attempting to log in again")
+            login(driver, "https://www.calendis.ro")
+
         fotbal_service = WebDriverWait(driver, 10).until(
             EC.presence_of_element_located((By.XPATH, "//div[@class='col-xs-6 service-name' and @title='Fotbal']"))
         )
