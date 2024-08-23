@@ -46,7 +46,6 @@ def setup_driver():
 
 def click_element(driver, element):
     try:
-        logger.info(f"Attempting to click element: {element}")
         driver.execute_script("arguments[0].scrollIntoView(true);", element)
         time.sleep(0.5)
         driver.execute_script("arguments[0].click();", element)
@@ -74,11 +73,11 @@ def login(driver, website_url):
             EC.presence_of_element_located((By.ID, "forEmail"))
         )
         email_field.send_keys(os.getenv('EMAIL'))
-        logger.info("Entered email")
+        logger.info("Entered email" + os.getenv('EMAIL'))
 
         password_field = driver.find_element(By.ID, "forPassword")
         password_field.send_keys(os.getenv('ACC_PASSWORD'))
-        logger.info("Entered password")
+        logger.info("Entered password" + os.getenv('ACC_PASSWORD'))
 
         connect_btn = driver.find_element(By.CSS_SELECTOR, "button.connect.validation_button")
         connect_btn.click()
