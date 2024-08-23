@@ -247,6 +247,13 @@ def check_availability():
 
 def main():
     logger.info("Starting availability check")
+
+    required_vars = ['DISCORD_TOKEN', 'DISCORD_CHANNEL_ID', 'EMAIL', 'ACC_PASSWORD']
+    for var in required_vars:
+        if not os.getenv(var):
+            logger.error(f"Environment variable {var} is not set!")
+            sys.exit(1)
+
     available_slots = check_availability()
 
     if available_slots:
