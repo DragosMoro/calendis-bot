@@ -4,6 +4,8 @@ import time
 from dotenv import load_dotenv
 from selenium import webdriver
 from selenium.webdriver import ActionChains
+from selenium.webdriver.firefox.options import Options
+from selenium.webdriver.firefox.service import Service
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
@@ -19,8 +21,11 @@ DISCORD_CHANNEL_ID = int(os.getenv('DISCORD_CHANNEL_ID'))
 
 def setup_driver():
     try:
-        driver = webdriver.Firefox()
-        driver.maximize_window()
+        options = Options()
+        options.add_argument("--headless")
+        service = Service(executable_path="/usr/local/bin/geckodriver")
+        driver = webdriver.Firefox(options=options, service=service)
+        driver.set_window_size(1920, 1080)
         return driver
     except Exception as e:
         print(f"Error setting up the driver: {str(e)}")

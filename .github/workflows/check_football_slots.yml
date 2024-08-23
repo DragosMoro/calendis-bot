@@ -2,29 +2,37 @@ name: Calendis Availability Checker
 
 on:
   schedule:
-    - cron: '0 */6 * * *'  # Rulează la fiecare 6 ore
-  workflow_dispatch:  # Permite rularea manuală
+    - cron: '0 */6 * * *'
+  workflow_dispatch:
 
 jobs:
   check-availability:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
+
     - name: Set up Python
       uses: actions/setup-python@v2
       with:
         python-version: '3.10'
+
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
         pip install -r requirements.txt
-    - name: Install Firefox and GeckoDriver
+
+    - name: Install Firefox
       run: |
         sudo apt-get update
         sudo apt-get install -y firefox
-        wget https://github.com/mozilla/geckodriver/releases/download/v0.30.0/geckodriver-v0.30.0-linux64.tar.gz
-        tar -xzf geckodriver-v0.30.0-linux64.tar.gz
+
+    - name: Install latest geckodriver
+      run: |
+        LATEST_GECKODRIVER_VERSION=$(curl -sS https://api.github.com/repos/mozilla/geckodriver/releases/latest | grep -Po '"tag_name": "\K.*?(?=")')
+        wget https://github.com/mozilla/geckodriver/releases/download/${LATEST_GECKODRIVER_VERSION}/geckodriver-${LATEST_GECKODRIVER_VERSION}-linux64.tar.gz
+        tar -xzf geckodriver-${LATEST_GECKODRIVER_VERSION}-linux64.tar.gz
         sudo mv geckodriver /usr/local/bin/
+
     - name: Run availability checker
       env:
         DISCORD_TOKEN: ${{ secrets.DISCORD_TOKEN }}
