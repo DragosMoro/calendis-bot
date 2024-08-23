@@ -26,18 +26,8 @@ DISCORD_CHANNEL_ID = int(os.getenv('DISCORD_CHANNEL_ID'))
 def setup_driver():
     try:
         logger.info("Setting up the Selenium WebDriver")
-        options = Options()
-        options.add_argument("--headless")
-        options.add_argument("--no-sandbox")
-        options.add_argument("--disable-dev-shm-usage")
-
-        geckodriver_path = os.getenv('GECKODRIVER_PATH', 'geckodriver')
-        logger.info(f"Using GeckoDriver at path: {geckodriver_path}")
-
-        service = Service(executable_path=geckodriver_path)
-
-        driver = webdriver.Firefox(options=options, service=service)
-        driver.set_window_size(1920, 1080)
+        driver = webdriver.Firefox()
+        driver.maximize_window()
         logger.info("WebDriver setup completed successfully")
         return driver
     except Exception as e:
