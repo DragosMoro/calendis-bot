@@ -14,7 +14,6 @@ from selenium.common.exceptions import TimeoutException, NoSuchElementException,
 import discord
 from discord.ext import commands
 
-# Configure logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
 
@@ -27,13 +26,21 @@ DISCORD_CHANNEL_ID = int(os.getenv('DISCORD_CHANNEL_ID'))
 def setup_driver():
     try:
         logger.info("Setting up the Selenium WebDriver")
-        driver = webdriver.Firefox()
+        options = Options()
+        options.add_argument("--headless")
+        options.add_argument("--no-sandbox")
+        options.add_argument("--disable-dev-shm-usage")
+
+        service = Service(executable_path=os.getenv('GECKODRIVER_PATH', 'geckodriver'))
+
+        driver = webdriver.Firefox(options=options, service=service)
         driver.set_window_size(1920, 1080)
         logger.info("WebDriver setup completed successfully")
         return driver
     except Exception as e:
         logger.error(f"Error setting up the driver: {str(e)}")
         sys.exit(1)
+
 
 def click_element(driver, element):
     try:
