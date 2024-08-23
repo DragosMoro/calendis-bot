@@ -60,9 +60,9 @@ def click_element(driver, element):
             logger.error(f"Error clicking element with ActionChains: {str(e)}")
             raise
 
-def login(driver):
+def login(driver, website_url):
     logger.info("Initiating login process")
-    driver.get("https://www.calendis.ro")
+    driver.get(website_url)
     try:
         login_btn = WebDriverWait(driver, 10).until(
             EC.element_to_be_clickable((By.ID, "login-btn"))
@@ -104,6 +104,7 @@ def navigate_to_page(driver):
     logger.info("Navigating to the sports facility page")
     try:
         driver.get("https://www.calendis.ro/cluj-napoca/baza-sportiva-gheorgheni/b")
+        login(driver, "https://www.calendis.ro/cluj-napoca/baza-sportiva-gheorgheni/b")
     except Exception as e:
         logger.error(f"Error navigating to the page: {str(e)}")
         driver.quit()
@@ -185,8 +186,9 @@ def check_availability_for_day(driver, day):
 
 def check_availability():
     driver = setup_driver()
-    login(driver)
+    login(driver, "https://www.calendis.ro")
     navigate_to_page(driver)
+
 
     all_available_slots = []
 
