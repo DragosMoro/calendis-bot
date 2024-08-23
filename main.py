@@ -84,6 +84,8 @@ def login(driver):
         connect_btn.click()
         logger.info("Clicked connect button")
 
+        time.sleep(5)
+
     except TimeoutException:
         logger.error("Timeout while trying to log in. Check your internet connection or the website's responsiveness.")
         driver.quit()
